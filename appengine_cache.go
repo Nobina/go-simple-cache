@@ -3,7 +3,6 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -51,7 +50,7 @@ func (c *appengineCache) GeoAdd(ctx context.Context, k string, locations ...Loca
 	return fmt.Errorf("not supported")
 }
 
-func NewAppEngineCache(request *http.Request) Client {
+func NewAppEngineCache() Client {
 	return &appengineCache{
 		prefix: os.Getenv("GAE_SERVICE") + "/" + os.Getenv("GAE_VERSION"),
 		codec: memcache.Codec{
