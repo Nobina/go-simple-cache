@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -25,12 +26,12 @@ func init() {
 
 func TestRedisCacheListPlain(t *testing.T) {
 	cacheKey := "list_plain"
-	if err := cacheClient.Set(cacheKey, []string{"test"}, time.Minute); err != nil {
+	if err := cacheClient.Set(context.Background(), cacheKey, []string{"test"}, time.Minute); err != nil {
 		t.Error(err)
 	}
 
 	listTest := []string{}
-	if err := cacheClient.Get(cacheKey, &listTest); err != nil {
+	if err := cacheClient.Get(context.Background(), cacheKey, &listTest); err != nil {
 		t.Error(err)
 	}
 
@@ -41,14 +42,14 @@ func TestRedisCacheListPlain(t *testing.T) {
 
 func TestRedisCacheListObject(t *testing.T) {
 	cacheKey := "list_object"
-	if err := cacheClient.Set(cacheKey, []map[string]string{{
+	if err := cacheClient.Set(context.Background(), cacheKey, []map[string]string{{
 		"foo": "bar",
 	}}, time.Minute); err != nil {
 		t.Error(err)
 	}
 
 	listTest := []map[string]string{}
-	if err := cacheClient.Get(cacheKey, &listTest); err != nil {
+	if err := cacheClient.Get(context.Background(), cacheKey, &listTest); err != nil {
 		t.Error(err)
 	}
 
@@ -59,7 +60,7 @@ func TestRedisCacheListObject(t *testing.T) {
 
 func TestRedisCacheGeo(t *testing.T) {
 	cacheKey := "geo_list"
-	if err := cacheClient.GeoAdd(cacheKey, Location{
+	if err := cacheClient.GeoAdd(context.Background(), cacheKey, Location{
 		Name:      "test",
 		Longitude: 17.0,
 		Latitude:  59.0,
@@ -67,7 +68,7 @@ func TestRedisCacheGeo(t *testing.T) {
 		t.Error(err)
 	}
 
-	if locations, err := cacheClient.Nearby(cacheKey, 17.0, 59.0, 100); err != nil {
+	if locations, err := cacheClient.Nearby(context.Background(), cacheKey, 17.0, 59.0, 100); err != nil {
 		t.Error(err)
 	} else if len(locations) == 0 {
 		t.Errorf("empty list")

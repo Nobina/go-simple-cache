@@ -3,6 +3,8 @@ package cache
 import (
 	"errors"
 	"time"
+
+	"context"
 )
 
 var (
@@ -10,12 +12,12 @@ var (
 )
 
 type Client interface {
-	Delete(k string) error
-	Flush() error
-	Get(k string, v interface{}) error
-	Set(k string, v interface{}, expire time.Duration) error
-	Nearby(k string, lon, lat, radius float64) ([]Location, error)
-	GeoAdd(k string, locations ...Location) error
+	Delete(ctx context.Context, k string) error
+	Flush(ctx context.Context) error
+	Get(ctx context.Context, k string, v interface{}) error
+	Set(ctx context.Context, k string, v interface{}, expire time.Duration) error
+	Nearby(ctx context.Context, k string, lon, lat, radius float64) ([]Location, error)
+	GeoAdd(ctx context.Context, k string, locations ...Location) error
 }
 
 type Location struct {

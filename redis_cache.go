@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"context"
+
 	"github.com/go-redis/redis"
 )
 
@@ -11,15 +13,15 @@ type redisCache struct {
 	client *redis.Client
 }
 
-func (c *redisCache) Delete(k string) error {
+func (c *redisCache) Delete(ctx context.Context, k string) error {
 	return c.client.Del(k).Err()
 }
 
-func (c *redisCache) Flush() error {
+func (c *redisCache) Flush(ctx context.Context) error {
 	return c.client.FlushDB().Err()
 }
 
-func (c *redisCache) Get(k string, v interface{}) error {
+func (c *redisCache) Get(ctx context.Context, k string, v interface{}) error {
 	rv, err := c.client.Get(k).Result()
 	if err != nil {
 		return err
@@ -32,7 +34,7 @@ func (c *redisCache) Get(k string, v interface{}) error {
 	return nil
 }
 
-func (c *redisCache) Set(k string, v interface{}, expire time.Duration) error {
+func (c *redisCache) Set(ctx context.Context, k string, v interface{}, expire time.Duration) error {
 	buf, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -41,7 +43,7 @@ func (c *redisCache) Set(k string, v interface{}, expire time.Duration) error {
 	return c.client.Set(k, string(buf), expire).Err()
 }
 
-func (c *redisCache) Nearby(k string, lon, lat, radius float64) ([]Location, error) {
+func (c *redisCache) Nearby(ctx context.Context, k string, lon, lat, radius float64) ([]Location, error) {
 	result := []Location{}
 	locations, err := c.client.GeoRadius(k, lon, lat, &redis.GeoRadiusQuery{
 		Radius:   radius,
@@ -66,7 +68,7 @@ func (c *redisCache) Nearby(k string, lon, lat, radius float64) ([]Location, err
 	return result, nil
 }
 
-func (c *redisCache) GeoAdd(k string, locations ...Location) error {
+func (c *redisCache) GeoAdd(ctx context.Context, k string, locations ...Location) error {
 	redisLocations := []*redis.GeoLocation{}
 	for _, location := range locations {
 		redisLocations = append(redisLocations, &redis.GeoLocation{
